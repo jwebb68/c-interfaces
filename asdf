@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# find all .c files in src
+# compile to a.out in target/debug/
+# assume start in root
+# dont use make - too much faff
+# should use simpler tool that prevents the mess that can happen with makefiles.
+# and no, cmake does not cut it either.
+# cargo (rust) is getting there.
+
+C_FLAGS="-O0 -g"
+C_SRC=$(find src/ -name "*.c")
+TARGET_NAME=c-with-objects
+function build() {
+    mkdir -p target/debug
+    gcc $C_FLAGS -o target/debug/$TARGET_NAME $C_SRC
+}
+
+function clean_pristine() {
+    rm -rf target
+}
+
+function clean() {
+    rm -rf target/debug
+}
+
+case "$1" in
+    build)
+        build
+        ;;
+    clean)
+        clean
+        ;;
+    clean-pristine)
+        clean_pristine
+        ;;
+    *)
+        echo "do whut?"
+        exit 1
+        ;;
+esac
