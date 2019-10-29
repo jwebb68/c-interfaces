@@ -1,41 +1,217 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-# find all .c files in src
-# compile to a.out in target/debug/
+# target names should be from filesys
+# src/<target>/lib.c (for so)
+# src/<target>/main.c (for exe)
+
+# configs are config.yml in target folder.
+# src/<target>/config/.yml
+# but config needs to inherit/override from global,
+# config.yml in root
+
+# find all .c files in target dir
+# compile to $target in target/debug/
 # assume start in root
 # dont use make - too much faff
 # should use simpler tool that prevents the mess that can happen with makefiles.
 # and no, cmake does not cut it either.
 # cargo (rust) is getting there.
 
-C_FLAGS="-O0 -g"
-C_SRC=$(find src/ -name "*.c")
-TARGET_NAME=c-with-objects
-function build() {
-    mkdir -p target/debug
-    gcc $C_FLAGS -o target/debug/$TARGET_NAME $C_SRC
+import argparse
+import os
+import shutil
+import subprocess
+import errno
+import pathlib
+
+def build(args):
+    print(args)
+    config = configs[args.config]
+    targets = []
+    if args.target:
+        targets = [args.target]
+    else:
+        targets = find_targets()
+
+    for target in targets:
+        #builddir=os.path.join("target", args.config)
+        builddir=pathlib.Path("target").joinpath(args.config)
+        try:
+            os.makedirs(builddir)
+        except FileExistsError as exc:
+            pass
+
+        src = find_src(target)
+        objs = []
+        for file in src:
+            if file.suffix == ".c":
+
+                o = file.relative_to("src")
+                p = o.parent
+                p2 = o.relative_to(p)
+                o = p.joinpath("build").joinpath(p2)
+                o = o.with_suffix(".o")
+
+                obj = builddir.joinpath(o)
+                try:
+                    os.makedirs(obj.parent)
+                except FileExistsError as exc:
+                    pass
+
+                objs.append(obj)
+                cmd = list(config["CC"])
+                cmd += config["C_FLAGS"]
+                cmd += ["-c", "-o", obj]
+                cmd += [file]
+                print("compile: ", cmd)
+                subprocess.run(cmd)
+
+            elif file.suffix == ".cc":
+
+                o = file.relative_to("src")
+                p = o.parent
+                p2 = o.relative_to(p)
+                o = p.joinpath("build").joinpath(p2)
+                o = o.with_suffix(".o")
+
+                obj = builddir.joinpath(o)
+                try:
+                    os.makedirs(obj.parent)
+                except FileExistsError as exc:
+                    pass
+
+                objs.append(obj)
+                cmd = list(config["CXX"])
+                cmd += config["CXX_FLAGS"]
+                cmd += ["-c", "-o", obj]
+                cmd += [file]
+                print("compile: ", cmd)
+                subprocess.run(cmd)
+
+        cmd = list(config["CC"])
+        cmd += ["-o", os.path.join(builddir, target, target)]
+        cmd += config["C_LIBS"]
+        cmd += config["CXX_LIBS"]
+        cmd += objs
+        print("link: ", cmd)
+        subprocess.run(cmd)
+
+        # TODO: make incremental (based on hash or timestamp?)
+        # TODO: make multi-core using..
+        # TODO: make building in depends specified order
+        # TODO: handle .cc .s files into same target.
+        # TODO: how to conditionally include files?
+        # TODO: plug-in: add new language handlers
+        # TODO: plug-in: add new output types (basic: exe, .so, ext: appimage, etc)
+        # TODO: plug-in: add tooling (e.g. linters, checkers etc)
+        # TODO: plug-in: add new commands (reformat, build-appimage etc)
+        # TODO: add arch to output ,e.g. amd64-linux, amd64-macos,
+        # target/arch/config.. ?
+        # target/config/arch..?
+    return 0
+
+
+def clean(args):
+    if args.target:
+        os.remove(os.path.join("target", args.config, args.target))
+    else:
+        shutil.rmtree(os.path.join("target", args.config))
+    return 0
+
+def pristine_clean(args):
+    shutil.rmtree("target")
+    return 0
+
+def run(args):
+    # select config+target
+    # must select one target..
+    # does exec pass args to child?
+    config = configs[args.config]
+    targets = []
+    if args.target:
+        targets = [args.target]
+
+    #cmd = [os.path.join("target", args.config, args.target)] + args.cmdargs
+    prog = pathlib.Path("target")
+    prog = prog.joinpath(args.config)
+    prog = prog.joinpath(args.target)
+    prog = prog.joinpath(args.target)
+
+    cmd = [prog] + args.cmdargs
+    print(cmd)
+    os.execv(prog, cmd)
+
+ops = {
+    "build": build,
+    "clean": clean,
+    # pristine should be an op of clean..
+    # as should dist clean..
+    "pristine-clean": pristine_clean,
+    "run": run,
 }
 
-function clean_pristine() {
-    rm -rf target
+# configs should be sourced from config files in target and root folders
+# root is package config as well (or has base values for all targets, and
+# target folders just list overrides).
+# defaults before those are from toolchain
+# specify toolchain in target?
+
+configs = {
+    "debug": {
+        "CC": ["gcc"],
+        "CXX": ["g++"],
+        "C_FLAGS": ["-O0", "-g"],
+        "C_LIBS": [],
+        "CXX_FLAGS": ["-O0", "-g"],
+        "CXX_LIBS": ["-lstdc++"],
+    },
+    "release": {
+        "CC": ["gcc"],
+        "CXX": ["g++"],
+        "C_FLAGS": ["-O3"],
+        "C_LIBS": [],
+        "CXX_FLAGS": ["-O3"],
+        "CXX_LIBS": ["-lstdc++"],
+    }
 }
 
-function clean() {
-    rm -rf target/debug
-}
+def find_targets():
+    with os.scandir("src") as t:
+        for elt in t:
+            if not elt.is_dir():
+                continue
+            if elt.name.startswith('.'):
+                continue
+            p = pathlib.Path(elt.path)
+            if p.joinpath("main.c").is_file:
+                yield elt.name
+            elif p.joinpath("lib.c").is_file:
+                yield elt.name
 
-case "$1" in
-    build)
-        build
-        ;;
-    clean)
-        clean
-        ;;
-    clean-pristine)
-        clean_pristine
-        ;;
-    *)
-        echo "do whut?"
-        exit 1
-        ;;
-esac
+
+def find_src(target):
+    with os.scandir(os.path.join("src", target)) as t:
+        for elt in t:
+            if elt.is_dir():
+                continue
+            if elt.name.startswith('.'):
+                continue
+            yield pathlib.Path(elt.path)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.set_defaults(op=None, config="debug", target=None)
+    parser.add_argument("--config", choices=configs.keys())
+    parser.add_argument("--target", choices=list(find_targets()))
+    parser.add_argument("cmd", choices=ops.keys())
+    parser.add_argument("cmdargs", nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    #args = parser.parse_known_intermixed_args()
+    # TODO: use better cmdline parsing than this
+    # esp for sub-ops/cmdshell setups.
+    # since each subcommand has own set of options/args.
+    return ops[args.cmd](args)
+
+if __name__ == "__main__":
+    main()

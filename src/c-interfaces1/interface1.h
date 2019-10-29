@@ -19,25 +19,37 @@ struct _Interface1;
 
 struct _Interface1Vtbl {
     // for embedded, give ability to check that vtbl is the expected one
-    // and the vtbl pointer has not been corrupted, whic, if left unchecked
+    // and the vtbl pointer has not been corrupted, which, if left unchecked
     // would result in calling into some random part of the address space.
     // It's something, if weak.
     const InterfaceID *guard;
 
+    // offset to compute pointer-to-interface struct to it's containing
+    // struct start.
     size_t offset;
-    ///
+    /// the 'method' that needs to be on all interfaces.
+    // a bit nasty in using void ** for the out-param, would prefer it to be
+    // typed with the expected type, but it's C and you cannot do that..
+    // Or I could use a Specific Result struct ( Result<void *, ErrorType>) -
+    // nice although that is, it adds an extra struct + funcs to maintain
+    // and results is manual generics expansion..
     Result (*query_interface)(const Interface1 *self, const InterfaceID *iid, void **ret);
+
     ////
+    // example of some 'methods' that are implemented in this interface.
+    // there is an argument to be had regarding keeping implementation out of interfaces.
     Result (*get)(const Interface1 *self, AttributeID aid, Value *ret);
     Result (*set)(Interface1 *self, AttributeID aid, const Value *arg);
     Result (*action)(Interface1 *self, ActionID aid, const Value *arg, Value *ret);
+
     ////
     Result (*get_value)(const Interface1 *self, Value *ret);
     Result (*set_value)(Interface1 *self, const Value *arg);
 };
 
 struct _Interface1 {
-    // vtbl must be const
+    // for embedded (and indeed non-) vtbl must be const
+    // this also complies with MISRA.
     const Interface1Vtbl * const _vtbl;
 };
 
