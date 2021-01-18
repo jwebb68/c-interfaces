@@ -160,7 +160,7 @@ configs = {
     "debug": {
         "CC": ["gcc"],
         "CXX": ["g++"],
-        "C_FLAGS": ["-O0", "-g"],
+        "C_FLAGS": ["-O0", "-g", "-std=c99", "-Wpedantic", "-Wall", "-Werror", "-Wextra"],
         "C_LIBS": [],
         "CXX_FLAGS": ["-O0", "-g"],
         "CXX_LIBS": ["-lstdc++"],
@@ -168,7 +168,7 @@ configs = {
     "release": {
         "CC": ["gcc"],
         "CXX": ["g++"],
-        "C_FLAGS": ["-O3"],
+        "C_FLAGS": ["-O3", "-std=c99"],
         "C_LIBS": [],
         "CXX_FLAGS": ["-O3"],
         "CXX_LIBS": ["-lstdc++"],
