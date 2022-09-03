@@ -74,7 +74,9 @@ void M2_Interface2_query_interface(M2_Interface2 const *const self,
 
 
 void M2_Interface2_query_interface_mut(M2_Interface2 *const self,
-                                       M2_InterfaceID const *const iid, void **const val, M2_Result *const ret
+                                       M2_InterfaceID const *const iid,
+                                       void **const val,
+                                       M2_Result *const ret
                                       )
 {
     M2_Interface2_get_vtbl(self)->query_interface_mut(self, iid, val, ret);

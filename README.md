@@ -101,8 +101,9 @@ typedef struct MyIface1_s MyIface1;
 // myiface1.h
 typedef struct MyIface1Vtbl_s MyIface1Vtbl;
 struct MyIface1Vtbl_s {
-    void const *token;
+    struct MyIface1Vtbl_s const *const token;
     ptrdiff_t adj;
+    void (*destroy)(MyIface1 *const self);
     int (*query_interface)(MyIface1 const *const self, InterfaceID const *const iid, void const **out);
     int (*query_interface_mut)(MyIface1 *const self, InterfaceID const *const iid, void **out);
     int (*foo)(MyIface1 const *const self);
@@ -118,9 +119,12 @@ struct MyIface1_s {
 //myiface1.h
 extern InterfaceID const MyIface1_IID;
 
+#define MyIface1_init(vtbl) { ._vtbl=vtbl }
+
 //myiface1.c
 static void MyIface1_check(MyIface1 const *const self)
 {
+    // Not good, want to return error, not assert, so callsite decides what to do.
     assert(self->_vtbl.token == self->_vtbl);
 }
 
@@ -130,6 +134,12 @@ InterfaceID const MyIface1_IID = {
 };
 
 //myiface1.h+myiface1.c
+void MyIface1_destroy(MyIface1 const *const self)
+{
+    MyIface1_check(self);
+    return self->_vtbl.destroy(self);
+}
+
 int MyIface1_query_interface(MyIface1 const *const self, InterfaceID const *const iid, void const **out)
 {
     MyIface1_check(self);
@@ -160,10 +170,7 @@ int MyIface1_foo_mut(MyIface1 *const self)
 }
 
 //myiface1.h+myiface1.c
-// maybe not destroy, new?
-void MyIface1_destroy(MyIface1 *const self)
-{
-}
+// new? poss not.
 void MyIface1_new(MyIface1 *const self, MyIface1Vtbl const *const vtbl)
 {
     self->_vtbl = vtbl;
@@ -219,6 +226,11 @@ static MyStruct *MyStruct_MyIface1_get_self_mut(MyIface1 *const self)
     return obj;
 }
 
+void MyStruct_MyIface_destroy(MyIface1 const *const self)
+{
+    MyStruct const *inst = MyStruct_MyIface1_get_self(self)
+    MyStruct_destroy(inst);
+}
 int MyStruct_MyIface_query_interface(MyIface1 const *const self, InterfaceID const *const iid, void const **out)
 {
     MyStruct const *inst = MyStruct_MyIface1_get_self(self)
@@ -242,23 +254,28 @@ void MyStruct_MyIface_foo_mut(MyIface1 *const self)
     MyStruct_foo_mut(inst);
 }
 
-MyIfaceVtbl const MyStruct_MyIface_vtbl = {
-    // is this even possible?
-    .token = (void const *)&MyStruct_MyIface1_vtbl,
+static MyIfaceVtbl const MyStruct_MyIface_vtbl = {
+    .token = &MyStruct_MyIface1_vtbl,
     .adj = offsetof(MyStruct, myiface1),
+    .destroy = MyStruct_MyIface1_destroy,
     .query_interface = MyStruct_MyIface1_query_interface,
     .query_interface_mut = MyStruct_MyIface1_query_interface_mut,
+    // == interface specific functions here.
     .foo = MyStruct_MyIface1_foo,
     .foo_mut = MyStruct_MyIface1_foo_mut,
 };
 
 void MyStruct_destroy(MyStruct *const self)
 {
-    MyIface1_destroy(&self->myiface);
+    // interfaces do not need destroying as they have no state.
 }
 void MyStruct_new(MyStruct *const self)
 {
     MyIface1_new(&self->myiface1, &MyStruct_MyIface1_vtbl);
+}
+#define MyStruct_init \
+{ \
+    .myiface1=MyIface1_init(&MyStruct_MyIface1_vtbl) \
 }
 
 int main()
@@ -281,7 +298,7 @@ int main()
 
  - one ptr (vtbl ptr) per interface per struct.
  - no dupe of func pointers, they are in const ram.
- - not so fast, 2 index loads + jump per func call.
+ - not so fast, 2 index loads + jump + 2 other index loads per func call.
  - can check for corruption (e.g. vtable must begin with magic number)
  - no interface inheritance
  - would use offsetof (misra: argh)
@@ -292,6 +309,55 @@ int main()
 
 * is there a way of segregating the interfaces into one vtbl, a vbtl of vtbls?
 * - slower, 3 index loads + jump per call.
+
+* fat ptr, i.e ptr to iface+vtbl
+struct Iface1Ref {
+    struct Iface1 *inst;
+    struct Iface1Vtbl *vtbl;
+};
+?
+// note: pass by value, not by ref.
+// uses 2 regs though:
+// uses 2 mem loads + 1 mem loads = 3 memloads [safer]
+// or: 1 memload + 1 memload = 2 memloads [unsafe]
+bool Iface1_foo(Iface1Ref self, ...) {
+    // one index/mem load
+    if (self.vtbl != self.vtbl->token) { return false; }
+    // another index/mem load
+    return self.vtbl->foo(self,...)
+}
+// with self.vtbl->foo pointing to:
+bool Object1_Iface1_foo(IfaceRef self, ...) {
+    // do I need to do it twice ?
+    // if (self.vtbl != self.vtbl->token) { return false; }
+    // another index/mem load
+    Object1 *inst = (Object1 *)(((uint8_t *)self.inst) + self.vtbl->adj);
+    return Object1_foo(inst, ...);
+}
+//
+// vs.
+// normal ptr+vtbl in struct.
+// uses 1 reg
+// uses 3 memload + 2 memload = 5 memloads [safer]
+// or: uses 2 memloads + 2 memload = 4 memloads [unsafe]
+bool Iface1_foo(Iface1 *self, ...) {
+    // one index/mem load
+    Iface1Vtbl *vtbl = self->vtbl;
+    // one index/mem load
+    if (vtbl != vtbl->token) { return false; }
+    // another index/mem load
+    return vtbl->foo(self, ...)
+}
+// with self.vtbl->foo pointing to:
+bool Object1_Iface1_foo(Iface *self, ...) {
+    // one index/mem load
+    Iface1Vtbl *vtbl = self->vtbl;
+    // do I need to do it twice ?
+    // if (vtbl != vtbl->token) { return false; }
+    // another index/mem load
+    Object1 *inst = (Object1 *)(((uint8_t *)self) + vtbl->adj);
+    return Object1_foo(inst, ...);
+}
 
 
 "combined interfaces, function pointers in vtable per interface in const mem."
@@ -314,7 +380,7 @@ So, method calls would devolve into simple thunkers/wrappers to encapsulate how
 it's implemented.
 Also, want to return a result/error code to check on, which forces use of
 out-values, unless a Result struct is used..
-(poss nicer, but more typing/mantenance of a separate struct and not idiomatic C)
+(poss nicer, but more typing/maintenance of a separate struct and not idiomatic C)
 
  {
     // object o = object::new();
@@ -348,7 +414,7 @@ maybe this should be panic..
 But even then, malicious actors could match the vbtl structure and fool this.
 
 adding an interface is a very labourious affair,
-needing a fair amount of copy/paste (mainly due to type perservation of interface)
+needing a fair amount of copy/paste (mainly due to type preservation of interface)
 however, some of this can be mitigated with helper funcs.
 
 adding a method to an interface is also painful.

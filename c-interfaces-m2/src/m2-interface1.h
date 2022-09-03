@@ -66,41 +66,6 @@ struct M2_Interface1Vtbl_s {
 
 
     void (*foo2)(M2_Interface1 *const self, M2_Result *const ret);
-
-
-    void (*get)(M2_Interface1 const *const self,
-                M2_AttributeID const aid,
-                M2_Value *const val,
-                M2_Result *const ret
-               );
-
-
-    void (*set)(M2_Interface1 *const self,
-                M2_AttributeID const aid,
-                M2_Value const *const arg,
-                M2_Result *const ret
-               );
-
-
-    void (*action)(M2_Interface1 *const self,
-                   M2_ActionID const aid,
-                   M2_Value const *const arg,
-                   M2_Value *const val,
-                   M2_Result *const ret
-                  );
-
-
-    ////
-    void (*get_value)(M2_Interface1 const *const self,
-                      M2_Value *const val,
-                      M2_Result *const ret
-                     );
-
-
-    void (*set_value)(M2_Interface1 *const self,
-                      M2_Value const *const arg,
-                      M2_Result *const ret
-                     );
 };
 
 
@@ -149,12 +114,16 @@ void M2_Interface1_check_vtbl_(char const *file, size_t line,
 // if does not exist or on error, return Err().
 //pub
 void M2_Interface1_query_interface(M2_Interface1 const *const self,
-                                   M2_InterfaceID const *const iid, void const **const value, M2_Result *const ret
+                                   M2_InterfaceID const *const iid,
+                                   void const **const value,
+                                   M2_Result *const ret
                                   );
 
 //pub
 void M2_Interface1_query_interface_mut(M2_Interface1 *const self,
-                                       M2_InterfaceID const *const iid, void **const value, M2_Result *const ret
+                                       M2_InterfaceID const *const iid,
+                                       void **const value,
+                                       M2_Result *const ret
                                       );
 
 
@@ -165,41 +134,5 @@ void M2_Interface1_foo(M2_Interface1 *const self);
 //pub
 void M2_Interface1_foo2(M2_Interface1 *const self, M2_Result *const ret);
 
-
-// a form of dynamic dispatching using an interface using ids for props/actions
-// (these names come from dlms/cosem)
-void M2_Interface1_get(M2_Interface1 const *const self,
-                       M2_AttributeID const aid,
-                       M2_Value *const value,
-                       M2_Result *const ret
-                      );
-
-
-void M2_Interface1_set(M2_Interface1 *const self,
-                       M2_AttributeID const aid,
-                       M2_Value const *const value,
-                       M2_Result *const ret
-                      );
-
-
-void M2_Interface1_action(M2_Interface1 *const self,
-                          M2_ActionID const aid,
-                          M2_Value const *const arg,
-                          M2_Value *const val,
-                          M2_Result *const ret
-                         );
-
-
-// Example of getter/setters and indeed any other redirectable method.
-void M2_Interface1_get_value(M2_Interface1 const *const self,
-                             M2_Value *const value,
-                             M2_Result *const ret
-                            );
-
-
-void M2_Interface1_set_value(M2_Interface1 *const self,
-                             M2_Value const *const value,
-                             M2_Result *const ret
-                            );
 
 #endif//M2_INTERFACE1_H

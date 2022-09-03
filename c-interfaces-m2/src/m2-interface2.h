@@ -65,7 +65,7 @@ struct M2_Interface2_s {
 };
 
 
-extern const M2_InterfaceID M2_Interface2_ID;
+extern M2_InterfaceID const M2_Interface2_ID;
 
 
 void M2_Interface2_new(M2_Interface2 *const self,

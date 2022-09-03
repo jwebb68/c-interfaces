@@ -3,7 +3,8 @@
 
 
 void M2_Interface_try_check(void const *const expected,
-                            void const *const actual, M2_Result *const ret
+                            void const *const actual,
+                            M2_Result *const ret
                            )
 {
     if (expected == actual) {
@@ -26,9 +27,11 @@ void M2_Interface_check_(char const *file, size_t line,
 #endif
 
 
-void M2_Interface_query_interface(void const *inst, M2_InterfaceID const *iid,
-                                  void const **val, M2_Result *const ret
-                                  , M2_InterfaceLookup const *begin,
+void M2_Interface_query_interface(void const *inst,
+                                  M2_InterfaceID const *const iid,
+                                  void const **val,
+                                  M2_Result *const ret,
+                                  M2_InterfaceLookup const *begin,
                                   M2_InterfaceLookup const *end)
 {
     for (M2_InterfaceLookup const *it = begin; it != end; ++it) {
@@ -45,9 +48,11 @@ void M2_Interface_query_interface(void const *inst, M2_InterfaceID const *iid,
 }
 
 
-void M2_Interface_query_interface_mut(void *inst, M2_InterfaceID const *iid,
-                                      void **val, M2_Result *const ret
-                                      , M2_InterfaceLookup const *begin,
+void M2_Interface_query_interface_mut(void *inst,
+                                      M2_InterfaceID const *const iid,
+                                      void **val,
+                                      M2_Result *const ret,
+                                      M2_InterfaceLookup const *begin,
                                       M2_InterfaceLookup const *end)
 {
     for (M2_InterfaceLookup const *it = begin; it != end; ++it) {

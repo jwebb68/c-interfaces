@@ -8,9 +8,9 @@
 #include <memory.h>
 #include <stddef.h>
 
-
 static M2_InterfaceLookup const M2_Object1_ifaces[] = {
     {&M2_Interface1_ID, offsetof(M2_Object1, iface1)},
+    {&M2_Interface3_ID, offsetof(M2_Object1, iface3)},
 };
 // TODO maybe wrap this in DEFINE_INTERFACEMAP(cls)/INTERFACE()/END_INTERFACEMAP macros
 
@@ -66,12 +66,12 @@ static M2_Object1 *M2_Object1_Interface1_getobjptr_mut(M2_Interface1 *const
     return oself;
 }
 
-static void M2_Object1_Interface1_query_interface(M2_Interface1 const *const
-        self,
-        M2_InterfaceID const *const iid,
-        void const **const val,
-        M2_Result *const ret
-                                                 )
+static void M2_Object1_Interface1_query_interface(
+    M2_Interface1 const *const self,
+    M2_InterfaceID const *const iid,
+    void const **const val,
+    M2_Result *const ret
+)
 {
     M2_Object1_query_interface(M2_Object1_Interface1_getobjptr(self),
                                iid,
@@ -79,11 +79,12 @@ static void M2_Object1_Interface1_query_interface(M2_Interface1 const *const
                                ret);
 }
 
-static void M2_Object1_Interface1_query_interface_mut(M2_Interface1 *const self,
-        M2_InterfaceID const *const iid,
-        void **const val,
-        M2_Result *const ret
-                                                     )
+static void M2_Object1_Interface1_query_interface_mut(
+    M2_Interface1 *const self,
+    M2_InterfaceID const *const iid,
+    void **const val,
+    M2_Result *const ret
+)
 {
     M2_Object1_query_interface_mut(M2_Object1_Interface1_getobjptr_mut(self),
                                    iid,
@@ -107,25 +108,6 @@ static void M2_Object1_Interface1_foo2(M2_Interface1 *const self,
 }
 
 
-// ===========================================================================
-static void M2_Object1_Interface1_get_value(M2_Interface1 const *const self,
-        M2_Value *const val,
-        M2_Result *const ret
-                                           )
-{
-    M2_Object1_get_value(M2_Object1_Interface1_getobjptr(self), val, ret);
-}
-
-
-static void M2_Object1_Interface1_set_value(M2_Interface1 *const self,
-        M2_Value const *const arg,
-        M2_Result *const ret
-                                           )
-{
-    M2_Object1_set_value(M2_Object1_Interface1_getobjptr_mut(self), arg, ret);
-}
-
-
 static M2_Interface1Vtbl const M2_Object1_Interface1_vtbl = {
     &M2_Object1_Interface1_vtbl,
     offsetof(M2_Object1, iface1),
@@ -133,12 +115,150 @@ static M2_Interface1Vtbl const M2_Object1_Interface1_vtbl = {
     M2_Object1_Interface1_query_interface_mut,
     M2_Object1_Interface1_foo,
     M2_Object1_Interface1_foo2,
-    M2_Interface1_get,
-    M2_Interface1_set,
-    M2_Interface1_action,
-    M2_Object1_Interface1_get_value,
-    M2_Object1_Interface1_set_value
 };
+
+
+
+// ===========================================================================
+
+static M2_Object1 const *M2_Object1_Interface3_getobjptr(
+    M2_Interface3 const *const self)
+{
+    // could recheck self->_vtbl again, on the rare/slim chance that it's been corrupted.
+    // TODO: check self vtbl is expected one before accessing for the adjustment for self
+    M2_Object1 const *const oself = M2_INTERFACE_GET_OBJPTR(M2_Object1, self);
+    return oself;
+}
+
+
+static M2_Object1 *M2_Object1_Interface3_getobjptr_mut(
+    M2_Interface3 *const self)
+{
+    // could recheck self->_vtbl again, on the rare/slim chance that it's been corrupted.
+    // TODO: check self vtbl is expected one before accessing for the adjustment for self
+    M2_Object1 *const oself = M2_INTERFACE_GET_OBJPTR_MUT(M2_Object1, self);
+    return oself;
+}
+
+static void M2_Object1_Interface3_query_interface(
+    M2_Interface3 const *const self,
+    M2_InterfaceID const *const iid,
+    void const **const val,
+    M2_Result *const ret
+)
+{
+    M2_Object1_query_interface(M2_Object1_Interface3_getobjptr(self),
+                               iid,
+                               val,
+                               ret);
+}
+
+static void M2_Object1_Interface3_query_interface_mut(
+    M2_Interface3 *const self,
+    M2_InterfaceID const *const iid,
+    void **const val,
+    M2_Result *const ret
+)
+{
+    M2_Object1_query_interface_mut(M2_Object1_Interface3_getobjptr_mut(self),
+                                   iid,
+                                   val,
+                                   ret);
+}
+
+static void M2_Object1_Interface3_get_value1(M2_Interface3 const *const self,
+        M2_Value *const val,
+        M2_Result *const ret
+                                            )
+{
+    M2_Object1_get_value1(M2_Object1_Interface3_getobjptr(self), val, ret);
+}
+
+
+static void M2_Object1_Interface3_set_value1(M2_Interface3 *const self,
+        M2_Value const *const arg,
+        M2_Result *const ret
+                                            )
+{
+    M2_Object1_set_value1(M2_Object1_Interface3_getobjptr_mut(self), arg, ret);
+}
+
+static void M2_Object1_Interface3_get_value2(M2_Interface3 const *const self,
+        M2_Value *const val,
+        M2_Result *const ret
+                                            )
+{
+    M2_Object1_get_value2(M2_Object1_Interface3_getobjptr(self), val, ret);
+}
+
+
+static void M2_Object1_Interface3_set_value2(M2_Interface3 *const self,
+        M2_Value const *const arg,
+        M2_Result *const ret
+                                            )
+{
+    M2_Object1_set_value2(M2_Object1_Interface3_getobjptr_mut(self), arg, ret);
+}
+
+
+static void M2_Object1_Interface3_get_value3(M2_Interface3 const *const self,
+        M2_Value *const val,
+        M2_Result *const ret
+                                            )
+{
+    M2_Object1_get_value3(M2_Object1_Interface3_getobjptr(self), val, ret);
+}
+
+
+static void M2_Object1_Interface3_set_value3(M2_Interface3 *const self,
+        M2_Value const *const arg,
+        M2_Result *const ret
+                                            )
+{
+    M2_Object1_set_value3(M2_Object1_Interface3_getobjptr_mut(self), arg, ret);
+}
+
+static void M2_Object1_Interface3_action1(M2_Interface3 *const self,
+        M2_Value const *const arg,
+        M2_Value *const out,
+        M2_Result *const ret
+                                         )
+{
+    M2_Object1_action1(M2_Object1_Interface3_getobjptr_mut(self), arg, out, ret);
+}
+
+
+static void M2_Object1_Interface3_action2(M2_Interface3 *const self,
+        M2_Value const *const arg,
+        M2_Value *const out,
+        M2_Result *const ret
+                                         )
+{
+    M2_Object1_action2(M2_Object1_Interface3_getobjptr_mut(self), arg, out, ret);
+}
+
+
+static M2_Interface3Vtbl const M2_Object1_Interface3_vtbl = {
+    &M2_Object1_Interface3_vtbl,
+    offsetof(M2_Object1, iface3),
+    M2_Object1_Interface3_query_interface,
+    M2_Object1_Interface3_query_interface_mut,
+    M2_Interface3_get,
+    M2_Interface3_set,
+    M2_Interface3_action,
+    M2_Object1_Interface3_get_value1,
+    M2_Object1_Interface3_set_value1,
+    M2_Object1_Interface3_get_value2,
+    M2_Object1_Interface3_set_value2,
+    M2_Object1_Interface3_get_value3,
+    M2_Object1_Interface3_set_value3,
+    M2_Object1_Interface3_action1,
+    M2_Object1_Interface3_action2,
+};
+
+
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -159,7 +279,9 @@ void M2_Object1_new(M2_Object1 *const self)
     // unless I hack it with offsetof..
     M2_Interface1_new(&self->iface1, &M2_Object1_Interface1_vtbl);
     //M2_Value_new(&self->value);
-    self->value = 0;
+    self->value1 = 0;
+    self->value2 = 1;
+    self->value3 = 2;
 }
 
 
@@ -177,21 +299,81 @@ void M2_Object1_foo2(M2_Object1 *const self,
 }
 
 
-void M2_Object1_get_value(M2_Object1 const *const self,
-                          M2_Value *const val,
-                          M2_Result *const ret
-                         )
+void M2_Object1_get_value1(M2_Object1 const *const self,
+                           M2_Value *const val,
+                           M2_Result *const ret
+                          )
 {
-    *val = self->value;
+    *val = self->value1;
     M2_Result_ok(ret, 0);
 }
 
 
-void M2_Object1_set_value(M2_Object1 *const self,
-                          M2_Value const *const arg,
-                          M2_Result *const ret
-                         )
+void M2_Object1_set_value1(M2_Object1 *const self,
+                           M2_Value const *const arg,
+                           M2_Result *const ret
+                          )
 {
-    self->value = *arg;
+    self->value1 = *arg;
     M2_Result_ok(ret, 0);
+}
+
+void M2_Object1_get_value2(M2_Object1 const *const self,
+                           M2_Value *const val,
+                           M2_Result *const ret
+                          )
+{
+    *val = self->value2;
+    M2_Result_ok(ret, 0);
+}
+
+
+void M2_Object1_set_value2(M2_Object1 *const self,
+                           M2_Value const *const arg,
+                           M2_Result *const ret
+                          )
+{
+    self->value2 = *arg;
+    M2_Result_ok(ret, 0);
+}
+
+void M2_Object1_get_value3(M2_Object1 const *const self,
+                           M2_Value *const val,
+                           M2_Result *const ret
+                          )
+{
+    *val = self->value3;
+    M2_Result_ok(ret, 0);
+}
+
+
+void M2_Object1_set_value3(M2_Object1 *const self,
+                           M2_Value const *const arg,
+                           M2_Result *const ret
+                          )
+{
+    self->value3 = *arg;
+    M2_Result_ok(ret, 0);
+}
+
+void M2_Object1_action1(M2_Object1 *const self,
+                        M2_Value const *const arg,
+                        M2_Value *const out,
+                        M2_Result *const ret
+                       )
+{
+    *out = self->value1 + *arg + 23;
+    M2_Result_ok(ret, 0);
+}
+
+void M2_Object1_action2(M2_Object1 *const self,
+                        M2_Value const *const arg,
+                        M2_Value *const out,
+                        M2_Result *const ret
+                       )
+{
+    ((void)self);
+    ((void)arg);
+    ((void)out);
+    M2_Result_err(ret, M2_Err_NotImplemented);
 }

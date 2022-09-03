@@ -153,6 +153,8 @@ c-interfaces_DEPS:=
 modls:=
 modls+=c-interfaces-r2
 modls+=c-interfaces-m2
+modls+=c-interfaces-m3
+modls+=c-interfaces-m4
 
 # build makefile to build/clean buildtree from src
 # in makefile:
@@ -286,7 +288,10 @@ examples+=$(patsubst examples/%.cc,%,$(wildcard examples/*.cc))
 
 examples_src:=$(wildcard examples/*.c examples/*.cc)
 
-examples_deps:=c-interfaces-2
+examples_deps:=
+examples_deps+=c-interfaces-m2
+examples_deps+=c-interfaces-m3
+examples_deps+=c-interfaces-m4
 
 # $1 = example name $2 = config
 define mk_example

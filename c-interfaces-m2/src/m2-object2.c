@@ -9,7 +9,6 @@
 
 
 //////////////////////////////////////////////////////////////////////////////
-
 static M2_InterfaceLookup const M2_Object2_ifaces[] = {
     {&M2_Interface1_ID, offsetof(M2_Object2, iface1)},
     {&M2_Interface2_ID, offsetof(M2_Object2, iface2)},
@@ -66,12 +65,12 @@ static M2_Object2 *M2_Object2_Interface1_getobjptr_mut(M2_Interface1 *const
 }
 
 
-static void M2_Object2_Interface1_query_interface(M2_Interface1 const *const
-        self,
-        M2_InterfaceID const *const iid,
-        void const **const val,
-        M2_Result *const ret
-                                                )
+static void M2_Object2_Interface1_query_interface(
+    M2_Interface1 const *const self,
+    M2_InterfaceID const *const iid,
+    void const **const val,
+    M2_Result *const ret
+)
 {
     M2_Object2_query_interface(M2_Object2_Interface1_getobjptr(self),
                                iid,
@@ -80,11 +79,12 @@ static void M2_Object2_Interface1_query_interface(M2_Interface1 const *const
 }
 
 
-static void M2_Object2_Interface1_query_interface_mut(M2_Interface1 *const self,
-        M2_InterfaceID const *const iid,
-        void **const val,
-        M2_Result *const ret
-                                                     )
+static void M2_Object2_Interface1_query_interface_mut(
+    M2_Interface1 *const self,
+    M2_InterfaceID const *const iid,
+    void **const val,
+    M2_Result *const ret
+)
 {
     M2_Object2_query_interface_mut(M2_Object2_Interface1_getobjptr_mut(self),
                                    iid,
@@ -92,8 +92,6 @@ static void M2_Object2_Interface1_query_interface_mut(M2_Interface1 *const self,
                                    ret);
 }
 
-
-//========================================================================
 
 static void M2_Object2_Interface1_foo(M2_Interface1 *const self)
 {
@@ -108,26 +106,6 @@ static void M2_Object2_Interface1_foo2(M2_Interface1 *const self,
 }
 
 
-//========================================================================
-
-static void M2_Object2_Interface1_get_value(M2_Interface1 const *const self,
-        M2_Value *const val,
-        M2_Result *const ret
-                                           )
-{
-    M2_Object2_get_value(M2_Object2_Interface1_getobjptr(self), val, ret);
-}
-
-
-static void M2_Object2_Interface1_set_value(M2_Interface1 *const self,
-        M2_Value const *const arg,
-        M2_Result *const ret
-                                           )
-{
-    M2_Object2_set_value(M2_Object2_Interface1_getobjptr_mut(self), arg, ret);
-}
-
-
 static M2_Interface1Vtbl const M2_Object2_Interface1_vtbl = {
     &M2_Object2_Interface1_vtbl,
     offsetof(M2_Object2, iface1),
@@ -135,12 +113,6 @@ static M2_Interface1Vtbl const M2_Object2_Interface1_vtbl = {
     M2_Object2_Interface1_query_interface_mut,
     M2_Object2_Interface1_foo,
     M2_Object2_Interface1_foo2,
-    M2_Interface1_get,
-    M2_Interface1_set,
-    M2_Interface1_action,
-    M2_Object2_Interface1_get_value,
-    M2_Object2_Interface1_set_value
-
 };
 
 
@@ -166,12 +138,12 @@ static M2_Object2 *M2_Object2_Interface2_getobjptr_mut(M2_Interface2 *const
 }
 
 
-static void M2_Object2_Interface2_query_interface(M2_Interface2 const *const
-        self,
-        M2_InterfaceID const *const iid,
-        void const **const val,
-        M2_Result *const ret
-                                                 )
+static void M2_Object2_Interface2_query_interface(
+    M2_Interface2 const *const self,
+    M2_InterfaceID const *const iid,
+    void const **const val,
+    M2_Result *const ret
+)
 {
     M2_Object2_query_interface(M2_Object2_Interface2_getobjptr(self),
                                iid,
@@ -180,11 +152,12 @@ static void M2_Object2_Interface2_query_interface(M2_Interface2 const *const
 }
 
 
-static void M2_Object2_Interface2_query_interface_mut(M2_Interface2 *const self,
-        M2_InterfaceID const *const iid,
-        void **const val,
-        M2_Result *const ret
-                                                     )
+static void M2_Object2_Interface2_query_interface_mut(
+    M2_Interface2 *const self,
+    M2_InterfaceID const *const iid,
+    void **const val,
+    M2_Result *const ret
+)
 {
     M2_Object2_query_interface_mut(M2_Object2_Interface2_getobjptr_mut(self),
                                    iid,
